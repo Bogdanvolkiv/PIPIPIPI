@@ -1,143 +1,104 @@
-// Подумать над структурой класса Ноутбук для магазина техники - выделить поля и методы. Реализовать в java.
+// Создать наследника реализованного класса ГорячийНапиток с дополнительным полем int температура.
+// Создать класс ГорячихНапитковАвтомат реализующий интерфейс
+// ТорговыйАвтомат и реализовать перегруженный метод getProduct(int name, int volume, int temperature), выдающий продукт соответствующий имени, объёму и температуре
+// В main проинициализировать несколько ГорячихНапитков и ГорячихНапитковАвтомат и воспроизвести логику, заложенную в программе
+// Всё вышеуказанное создать согласно принципам ООП, пройденным на семинаре
+// ГорячийНапиток.java
+public class HotDrink {
+    private String name;
+    private int volume;
 
-// -Создать множество ноутбуков.
-// -Написать метод, который будет запрашивать у пользователя критерий (или критерии) фильтрации и выведет ноутбуки, отвечающие фильтру. Критерии фильтрации можно хранить в Map.
-// Например:
-// Введите цифру, соответствующую необходимому критерию:
-// 1 - ОЗУ
-// 2 - Объем ЖД
-// 3 - Операционная система
-// 4 - Цвет …
-// -Далее нужно запросить минимальные значения для указанных критериев - сохранить параметры фильтрации можно также в Map.
-// -Отфильтровать ноутбуки их первоначального множества и вывести проходящие по условиям.
-
-import java.util.*;
-
-public class Ноутбук {
-    private String модель;
-    private int объемОЗУ; // в гигабайтах
-    private int объемЖД; // в гигабайтах
-    private String операционнаяСистема;
-    private String цвет;
-
-    // Конструктор
-    public Ноутбук(String модель, int объемОЗУ, int объемЖД, String операционнаяСистема, String цвет) {
-        this.модель = модель;
-        this.объемОЗУ = объемОЗУ;
-        this.объемЖД = объемЖД;
-        this.операционнаяСистема = операционнаяСистема;
-        this.цвет = цвет;
+    public HotDrink(String name, int volume) {
+        this.name = name;
+        this.volume = volume;
     }
 
-    // Геттеры
-    public String getМодель() {
-        return модель;
+    public String getName() {
+        return name;
     }
 
-    public int getОбъемОЗУ() {
-        return объемОЗУ;
-    }
-
-    public int getОбъемЖД() {
-        return объемЖД;
-    }
-
-    public String getОперационнаяСистема() {
-        return операционнаяСистема;
-    }
-
-    public String getЦвет() {
-        return цвет;
+    public int getVolume() {
+        return volume;
     }
 
     @Override
     public String toString() {
-        return "Ноутбук{" +
-                "модель='" + модель + '\'' +
-                ", объемОЗУ=" + объемОЗУ +
-                "GB, объемЖД=" + объемЖД +
-                "GB, операционнаяСистема='" + операционнаяСистема + '\'' +
-                ", цвет='" + цвет + '\'' +
-                '}';
+        return "HotDrink{name='" + name + "', volume=" + volume + "}";
+    }
+}
+
+// ГорячийНапитокСТемпературой.java
+public class HotDrinkWithTemperature extends HotDrink {
+    private int temperature;
+
+    public HotDrinkWithTemperature(String name, int volume, int temperature) {
+        super(name, volume);
+        this.temperature = temperature;
     }
 
-    // Пример метода для фильтрации ноутбуков по заданным критериям
-    public static List<Ноутбук> фильтроватьНоутбуки(Set<Ноутбук> ноутбуки, Map<Integer, Object> фильтр) {
-        List<Ноутбук> результат = new ArrayList<>();
+    public int getTemperature() {
+        return temperature;
+    }
 
-        for (Ноутбук ноутбук : ноутбуки) {
-            boolean соответствует = true;
+    @Override
+    public String toString() {
+        return "HotDrinkWithTemperature{name='" + getName() + "', volume=" + getVolume() + ", temperature=" + temperature + "}";
+    }
+}
 
-            // Применение фильтра по критериям
-            for (Map.Entry<Integer, Object> entry : фильтр.entrySet()) {
-                int критерий = entry.getKey();
-                Object значение = entry.getValue();
+// ТорговыйАвтомат.java
+public interface VendingMachine {
+    HotDrink getProduct(String name, int volume, int temperature);
+}
 
-                switch (критерий) {
-                    case 1:
-                        int минимальныйОЗУ = (int) значение;
-                        if (ноутбук.getОбъемОЗУ() < минимальныйОЗУ) {
-                            соответствует = false;
-                        }
-                        break;
-                    case 2:
-                        int минимальныйЖД = (int) значение;
-                        if (ноутбук.getОбъемЖД() < минимальныйЖД) {
-                            соответствует = false;
-                        }
-                        break;
-                    case 3:
-                        String операционнаяСистема = (String) значение;
-                        if (!ноутбук.getОперационнаяСистема().equalsIgnoreCase(операционнаяСистема)) {
-                            соответствует = false;
-                        }
-                        break;
-                    case 4:
-                        String цвет = (String) значение;
-                        if (!ноутбук.getЦвет().equalsIgnoreCase(цвет)) {
-                            соответствует = false;
-                        }
-                        break;
-                    // Добавить дополнительные критерии по мере необходимости
-                    default:
-                        break;
-                }
+// ГорячихНапитковАвтомат.java
+import java.util.ArrayList;
+import java.util.List;
 
-                if (!соответствует) {
-                    break; // Прекращаем проверку текущего ноутбука при несоответствии хотя бы одному критерию
-                }
-            }
+public class HotDrinkVendingMachine implements VendingMachine {
+    private List<HotDrinkWithTemperature> drinks;
 
-            if (соответствует) {
-                результат.add(ноутбук); // Добавляем ноутбук в результаты, если он соответствует всем критериям
+    public HotDrinkVendingMachine() {
+        drinks = new ArrayList<>();
+    }
+
+    public void addDrink(HotDrinkWithTemperature drink) {
+        drinks.add(drink);
+    }
+
+    @Override
+    public HotDrink getProduct(String name, int volume, int temperature) {
+        for (HotDrinkWithTemperature drink : drinks) {
+            if (drink.getName().equals(name) && drink.getVolume() == volume && drink.getTemperature() == temperature) {
+                return drink;
             }
         }
-
-        return результат;
+        return null; // Если не найдено соответствие
     }
+}
 
+// Main.java
+public class Main {
     public static void main(String[] args) {
-        // Пример использования метода фильтрации
-        Ноутбук ноутбук1 = new Ноутбук("Asus ZenBook", 16, 512, "Windows 10", "серый");
-        Ноутбук ноутбук2 = new Ноутбук("Apple MacBook Pro", 32, 1000, "macOS", "серебристый");
-        Ноутбук ноутбук3 = new Ноутбук("Dell XPS", 8, 256, "Ubuntu", "черный");
-
-        Set<Ноутбук> множествоНоутбуков = new HashSet<>();
-        множествоНоутбуков.add(ноутбук1);
-        множествоНоутбуков.add(ноутбук2);
-        множествоНоутбуков.add(ноутбук3);
-
-        Map<Integer, Object> фильтр = new HashMap<>();
-        фильтр.put(1, 16); // Минимальный объем ОЗУ
-        фильтр.put(2, 512); // Минимальный объем ЖД
-        // Добавьте другие критерии фильтрации при необходимости
-
-        List<Ноутбук> отфильтрованныеНоутбуки = Ноутбук.фильтроватьНоутбуки(множествоНоутбуков, фильтр);
-
-        // Вывод результатов
-        System.out.println("Отфильтрованные ноутбуки:");
-        for (Ноутбук ноутбук : отфильтрованныеНоутбуки) {
-            System.out.println(ноутбук);
+        // Создание автоматов и напитков
+        HotDrinkVendingMachine vendingMachine = new HotDrinkVendingMachine();
+        
+        HotDrinkWithTemperature tea = new HotDrinkWithTemperature("Tea", 250, 85);
+        HotDrinkWithTemperature coffee = new HotDrinkWithTemperature("Coffee", 200, 90);
+        HotDrinkWithTemperature hotChocolate = new HotDrinkWithTemperature("Hot Chocolate", 300, 80);
+        
+        // Добавление напитков в автомат
+        vendingMachine.addDrink(tea);
+        vendingMachine.addDrink(coffee);
+        vendingMachine.addDrink(hotChocolate);
+        
+        // Получение продукта
+        HotDrink requestedDrink = vendingMachine.getProduct("Tea", 250, 85);
+        if (requestedDrink != null) {
+            System.out.println("You got: " + requestedDrink);
+        } else {
+            System.out.println("The requested drink is not available.");
         }
     }
 }
+
