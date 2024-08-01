@@ -1,193 +1,124 @@
-public class Beverage {
-    private String name;
-    private int volume;
+import java.util.ArrayList;
+import java.util.List;
 
-    public Beverage(String name, int volume) {
+class Person {
+    private String name;
+    private Person mother;
+    private Person father;
+    private List<Person> children;
+
+    public Person(String name) {
         this.name = name;
-        this.volume = volume;
+        this.children = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public int getVolume() {
-        return volume;
-    }
-}
-public class HotBeverage extends Beverage {
-    private int temperature;
-
-    public HotBeverage(String name, int volume, int temperature) {
-        super(name, volume);
-        this.temperature = temperature;
+    public Person getMother() {
+        return mother;
     }
 
-    public int getTemperature() {
-        return temperature;
+    public void setMother(Person mother) {
+        this.mother = mother;
+    }
+
+    public Person getFather() {
+        return father;
+    }
+
+    public void setFather(Person father) {
+        this.father = father;
+    }
+
+    public List<Person> getChildren() {
+        return children;
+    }
+
+    public void addChild(Person child) {
+        this.children.add(child);
+        if (this instanceof Female) {
+            child.setMother(this);
+        } else if (this instanceof Male) {
+            child.setFather(this);
+        }
     }
 
     @Override
     public String toString() {
-        return "HotBeverage{" +
-                "name='" + getName() + '\'' +
-                ", volume=" + getVolume() +
-                ", temperature=" + temperature +
-                '}';
-    }
-}
-public interface VendingMachine {
-    HotBeverage getProduct(String name, int volume, int temperature);
-}
-import java.util.ArrayList;
-import java.util.List;
-
-public class HotBeverageVendingMachine implements VendingMachine {
-    private List<HotBeverage> inventory = new ArrayList<>();
-
-    public void addProduct(HotBeverage beverage) {
-        inventory.add(beverage);
-    }
-
-    @Override
-    public HotBeverage getProduct(String name, int volume, int temperature) {
-        for (HotBeverage beverage : inventory) {
-            if (beverage.getName().equals(name) &&
-                beverage.getVolume() == volume &&
-                beverage.getTemperature() == temperature) {
-                return beverage;
-            }
-        }
-        return null; // or throw an exception if product not found
-    }
-}
-import java.util.List;
-
-public interface QueueBehaviour {
-    void addPersonToQueue(Person person);
-    Person removePersonFromQueue();
-}
-
-public interface MarketBehaviour {
-    void acceptOrder(Order order);
-    void deliverOrder();
-}
-public class Person {
-    private String name;
-
-    public Person(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
         return name;
     }
 }
 
-public class Order {
-    private Person person;
-    private String product;
-
-    public Order(Person person, String product) {
-        this.person = person;
-        this.product = product;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public String getProduct() {
-        return product;
+class Male extends Person {
+    public Male(String name) {
+        super(name);
     }
 }
-import java.util.LinkedList;
-import java.util.Queue;
 
-public class Market implements QueueBehaviour, MarketBehaviour {
-    private Queue<Person> queue = new LinkedList<>();
-    private Queue<Order> orders = new LinkedList<>();
+class Female extends Person {
+    public Female(String name) {
+        super(name);
+    }
+}
 
-    @Override
-    public void addPersonToQueue(Person person) {
-        queue.add(person);
-        System.out.println(person.getName() + " added to queue.");
+class FamilyTree {
+    private List<Person> people;
+
+    public FamilyTree() {
+        this.people = new ArrayList<>();
     }
 
-    @Override
-    public Person removePersonFromQueue() {
-        Person person = queue.poll();
-        if (person != null) {
-            System.out.println(person.getName() + " removed from queue.");
-        }
-        return person;
+    public void addPerson(Person person) {
+        this.people.add(person);
     }
 
-    @Override
-    public void acceptOrder(Order order) {
-        orders.add(order);
-        System.out.println("Order accepted: " + order.getProduct() + " for " + order.getPerson().getName());
-    }
-
-    @Override
-    public void deliverOrder() {
-        Order order = orders.poll();
-        if (order != null) {
-            System.out.println("Order delivered: " + order.getProduct() + " to " + order.getPerson().getName());
-        }
-    }
-
-    public void update() {
-        // Simulate accepting and delivering orders
-        if (!queue.isEmpty() && !orders.isEmpty()) {
-            Person person = removePersonFromQueue();
-            if (person != null) {
-                Order order = orders.stream()
-                        .filter(o -> o.getPerson().equals(person))
-                        .findFirst()
-                        .orElse(null);
-                if (order != null) {
-                    orders.remove(order);
-                    deliverOrder();
-                }
+    public Person findPersonByName(String name) {
+        for (Person person : people) {
+            if (person.getName().equalsIgnoreCase(name)) {
+                return person;
             }
         }
+        return null;
+    }
+
+    public List<Person> getChildrenOf(String name) {
+        Person person = findPersonByName(name);
+        if (person != null) {
+            return person.getChildren();
+        }
+        return new ArrayList<>();
     }
 }
+
 public class Main {
     public static void main(String[] args) {
-        HotBeverageVendingMachine vendingMachine = new HotBeverageVendingMachine();
+        FamilyTree familyTree = new FamilyTree();
 
-        HotBeverage tea = new HotBeverage("Tea", 250, 80);
-        HotBeverage coffee = new HotBeverage("Coffee", 200, 90);
-        HotBeverage hotChocolate = new HotBeverage("Hot Chocolate", 300, 85);
+        Person john = new Male("John");
+        Person jane = new Female("Jane");
+        Person jack = new Male("Jack");
+        Person jill = new Female("Jill");
 
-        vendingMachine.addProduct(tea);
-        vendingMachine.addProduct(coffee);
-        vendingMachine.addProduct(hotChocolate);
+        familyTree.addPerson(john);
+        familyTree.addPerson(jane);
+        familyTree.addPerson(jack);
+        familyTree.addPerson(jill);
 
-        HotBeverage requestedBeverage = vendingMachine.getProduct("Coffee", 200, 90);
-        if (requestedBeverage != null) {
-            System.out.println("Dispensed: " + requestedBeverage);
-        } else {
-            System.out.println("Product not found");
+        john.addChild(jack);
+        jane.addChild(jack);
+        john.addChild(jill);
+        jane.addChild(jill);
+
+        System.out.println("Children of John:");
+        for (Person child : familyTree.getChildrenOf("John")) {
+            System.out.println(child.getName());
         }
 
-        Market market = new Market();
-
-        Person alice = new Person("Alice");
-        Person bob = new Person("Bob");
-
-        market.addPersonToQueue(alice);
-        market.addPersonToQueue(bob);
-
-        Order order1 = new Order(alice, "Tea");
-        Order order2 = new Order(bob, "Coffee");
-
-        market.acceptOrder(order1);
-        market.acceptOrder(order2);
-
-        market.update();  // Simulate processing orders
-        market.update();
+        System.out.println("Children of Jane:");
+        for (Person child : familyTree.getChildrenOf("Jane")) {
+            System.out.println(child.getName());
+        }
     }
 }
