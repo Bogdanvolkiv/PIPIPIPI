@@ -1,104 +1,57 @@
-// Создать наследника реализованного класса ГорячийНапиток с дополнительным полем int температура.
-// Создать класс ГорячихНапитковАвтомат реализующий интерфейс
-// ТорговыйАвтомат и реализовать перегруженный метод getProduct(int name, int volume, int temperature), выдающий продукт соответствующий имени, объёму и температуре
-// В main проинициализировать несколько ГорячихНапитков и ГорячихНапитковАвтомат и воспроизвести логику, заложенную в программе
-// Всё вышеуказанное создать согласно принципам ООП, пройденным на семинаре
-// ГорячийНапиток.java
-public class HotDrink {
-    private String name;
-    private int volume;
+Задача номер 2 дополнение 
 
-    public HotDrink(String name, int volume) {
-        this.name = name;
-        this.volume = volume;
-    }
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
-    public String getName() {
-        return name;
-    }
-
-    public int getVolume() {
-        return volume;
-    }
-
-    @Override
-    public String toString() {
-        return "HotDrink{name='" + name + "', volume=" + volume + "}";
-    }
+// Интерфейс для работы с файлами
+interface FileHandler {
+    void writeToFile(String filename, String data);
+    String readFromFile(String filename);
 }
 
-// ГорячийНапитокСТемпературой.java
-public class HotDrinkWithTemperature extends HotDrink {
-    private int temperature;
-
-    public HotDrinkWithTemperature(String name, int volume, int temperature) {
-        super(name, volume);
-        this.temperature = temperature;
-    }
-
-    public int getTemperature() {
-        return temperature;
-    }
-
+// Реализация интерфейса FileHandler
+class FileHandlerImpl implements FileHandler {
     @Override
-    public String toString() {
-        return "HotDrinkWithTemperature{name='" + getName() + "', volume=" + getVolume() + ", temperature=" + temperature + "}";
-    }
-}
-
-// ТорговыйАвтомат.java
-public interface VendingMachine {
-    HotDrink getProduct(String name, int volume, int temperature);
-}
-
-// ГорячихНапитковАвтомат.java
-import java.util.ArrayList;
-import java.util.List;
-
-public class HotDrinkVendingMachine implements VendingMachine {
-    private List<HotDrinkWithTemperature> drinks;
-
-    public HotDrinkVendingMachine() {
-        drinks = new ArrayList<>();
-    }
-
-    public void addDrink(HotDrinkWithTemperature drink) {
-        drinks.add(drink);
-    }
-
-    @Override
-    public HotDrink getProduct(String name, int volume, int temperature) {
-        for (HotDrinkWithTemperature drink : drinks) {
-            if (drink.getName().equals(name) && drink.getVolume() == volume && drink.getTemperature() == temperature) {
-                return drink;
-            }
+    public void writeToFile(String filename, String data) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            writer.write(data);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return null; // Если не найдено соответствие
+    }
+
+    @Override
+    public String readFromFile(String filename) {
+        StringBuilder data = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                data.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data.toString();
     }
 }
 
-// Main.java
+// Основной класс, демонстрирующий использование FileHandler
 public class Main {
     public static void main(String[] args) {
-        // Создание автоматов и напитков
-        HotDrinkVendingMachine vendingMachine = new HotDrinkVendingMachine();
+        FileHandler fileHandler = new FileHandlerImpl();
         
-        HotDrinkWithTemperature tea = new HotDrinkWithTemperature("Tea", 250, 85);
-        HotDrinkWithTemperature coffee = new HotDrinkWithTemperature("Coffee", 200, 90);
-        HotDrinkWithTemperature hotChocolate = new HotDrinkWithTemperature("Hot Chocolate", 300, 80);
-        
-        // Добавление напитков в автомат
-        vendingMachine.addDrink(tea);
-        vendingMachine.addDrink(coffee);
-        vendingMachine.addDrink(hotChocolate);
-        
-        // Получение продукта
-        HotDrink requestedDrink = vendingMachine.getProduct("Tea", 250, 85);
-        if (requestedDrink != null) {
-            System.out.println("You got: " + requestedDrink);
-        } else {
-            System.out.println("The requested drink is not available.");
-        }
+        // Запись в файл
+        String filename = "example.txt";
+        String dataToWrite = "Hello, this is a test.";
+        fileHandler.writeToFile(filename, dataToWrite);
+        System.out.println("Data written to file.");
+
+        // Чтение из файла
+        String readData = fileHandler.readFromFile(filename);
+        System.out.println("Data read from file:");
+        System.out.println(readData);
     }
 }
-
