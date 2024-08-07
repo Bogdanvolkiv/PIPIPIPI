@@ -226,3 +226,110 @@ public class Main {
         personList.print();
     }
 }
+
+Задача номер 4 
+    import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class FamilyTreeApp {
+
+    // Параметризированный класс FamilyTree
+    public static class FamilyTree<T> implements Iterable<T> {
+        private List<T> members;
+
+        public FamilyTree() {
+            this.members = new ArrayList<>();
+        }
+
+        public void addMember(T member) {
+            this.members.add(member);
+        }
+
+        public List<T> getMembers() {
+            return members;
+        }
+
+        @Override
+        public java.util.Iterator<T> iterator() {
+            return members.iterator();
+        }
+    }
+
+    // Класс для взаимодействия с пользователем
+    public static class UserInteraction<T> {
+        private FamilyTree<T> familyTree;
+        private Scanner scanner;
+        private Class<T> type;
+
+        public UserInteraction(FamilyTree<T> familyTree, Class<T> type) {
+            this.familyTree = familyTree;
+            this.scanner = new Scanner(System.in);
+            this.type = type;
+        }
+
+        public void start() {
+            boolean running = true;
+
+            while (running) {
+                System.out.println("Введите команду: add, list, exit");
+                String command = scanner.nextLine();
+
+                switch (command) {
+                    case "add":
+                        addMember();
+                        break;
+                    case "list":
+                        listMembers();
+                        break;
+                    case "exit":
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Неизвестная команда.");
+                        break;
+                }
+            }
+        }
+
+        private void addMember() {
+            System.out.println("Введите имя участника:");
+            String name = scanner.nextLine();
+            try {
+                T member = type.getConstructor(String.class).newInstance(name);
+                familyTree.addMember(member);
+                System.out.println("Участник добавлен.");
+            } catch (Exception e) {
+                System.out.println("Ошибка при добавлении участника.");
+                e.printStackTrace();
+            }
+        }
+
+        private void listMembers() {
+            for (T member : familyTree) {
+                System.out.println(member.toString());
+            }
+        }
+    }
+
+    // Пример класса Person
+    public static class Person {
+        private String name;
+
+        public Person(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    // Главный метод main
+    public static void main(String[] args) {
+        FamilyTree<Person> familyTree = new FamilyTree<>();
+        UserInteraction<Person> ui = new UserInteraction<>(familyTree, Person.class);
+        ui.start();
+    }
+}
