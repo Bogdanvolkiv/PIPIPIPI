@@ -1,1 +1,124 @@
+Реализовать паттерн MVP в вашем проекте с семейным деревом
 
+import java.util.ArrayList;
+import java.util.List;
+
+// Модель (Model)
+public class TreeNode<T> {
+    private T data;
+    private List<TreeNode<T>> children;
+
+    public TreeNode(T data) {
+        this.data = data;
+        this.children = new ArrayList<>();
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public List<TreeNode<T>> getChildren() {
+        return children;
+    }
+
+    public void addChild(TreeNode<T> child) {
+        children.add(child);
+    }
+}
+
+// Представление (View)
+interface TreeView<T> {
+    void showTree(TreeNode<T> root);
+    void showError(String message);
+    void onAddChild(T parent, T child);
+    void onRemoveChild(T parent, T child);
+}
+
+// Презентер (Presenter)
+public class TreePresenter<T> {
+    private TreeNode<T> root;
+    private TreeView<T> view;
+
+    public TreePresenter(TreeNode<T> root, TreeView<T> view) {
+        this.root = root;
+        this.view = view;
+    }
+
+    public void addChild(T parentData, T childData) {
+        TreeNode<T> parent = findNode(root, parentData);
+        if (parent != null) {
+            TreeNode<T> child = new TreeNode<>(childData);
+            parent.addChild(child);
+            view.showTree(root);
+        } else {
+            view.showError("Parent not found");
+        }
+    }
+
+    public void removeChild(T parentData, T childData) {
+        TreeNode<T> parent = findNode(root, parentData);
+        if (parent != null) {
+            parent.getChildren().removeIf(child -> child.getData().equals(childData));
+            view.showTree(root);
+        } else {
+            view.showError("Parent not found");
+        }
+    }
+
+    private TreeNode<T> findNode(TreeNode<T> current, T data) {
+        if (current.getData().equals(data)) {
+            return current;
+        }
+        for (TreeNode<T> child : current.getChildren()) {
+            TreeNode<T> result = findNode(child, data);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+}
+
+// Реализация Представления (View Implementation)
+public class ConsoleTreeView<T> implements TreeView<T> {
+    @Override
+    public void showTree(TreeNode<T> root) {
+        printTree(root, "");
+    }
+
+    private void printTree(TreeNode<T> node, String indent) {
+        System.out.println(indent + node.getData());
+        for (TreeNode<T> child : node.getChildren()) {
+            printTree(child, indent + "  ");
+        }
+    }
+
+    @Override
+    public void showError(String message) {
+        System.out.println("Error: " + message);
+    }
+
+    @Override
+    public void onAddChild(T parent, T child) {
+        // Здесь можно реализовать логику для взаимодействия с пользователем, например через консоль
+    }
+
+    @Override
+    public void onRemoveChild(T parent, T child) {
+        // Здесь можно реализовать логику для взаимодействия с пользователем, например через консоль
+    }
+}
+
+// Основной класс программы (main)
+public class Main {
+    public static void main(String[] args) {
+        TreeNode<String> root = new TreeNode<>("Grandparent");
+        TreeView<String> view = new ConsoleTreeView<>();
+        TreePresenter<String> presenter = new TreePresenter<>(root, view);
+
+        presenter.addChild("Grandparent", "Parent");
+        presenter.addChild("Parent", "Child");
+
+        presenter.removeChild("Parent", "Child");
+    }
+}
