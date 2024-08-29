@@ -1,0 +1,156 @@
+Задача номер 7 
+
+import java.util.ArrayList;
+import java.util.List;
+
+// Интерфейс для описания человека
+interface PersonInterface {
+    String getName();
+    void setName(String name);
+    int getAge();
+    void setAge(int age);
+    PersonInterface getFather();
+    void setFather(PersonInterface father);
+    PersonInterface getMother();
+    void setMother(PersonInterface mother);
+}
+
+// Интерфейс для работы с семейным деревом
+interface FamilyTreeInterface {
+    void addPerson(PersonInterface person);
+    List<PersonInterface> getChildren(PersonInterface person);
+    List<PersonInterface> getParents(PersonInterface person);
+}
+
+// Класс для описания человека, реализующий интерфейс PersonInterface
+class Person implements PersonInterface {
+    private String name;
+    private int age;
+    private PersonInterface father;
+    private PersonInterface mother;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public PersonInterface getFather() {
+        return father;
+    }
+
+    public void setFather(PersonInterface father) {
+        this.father = father;
+    }
+
+    public PersonInterface getMother() {
+        return mother;
+    }
+
+    public void setMother(PersonInterface mother) {
+        this.mother = mother;
+    }
+}
+
+// Класс для работы с семейным деревом, реализующий интерфейс FamilyTreeInterface
+class FamilyTree implements FamilyTreeInterface {
+    private List<PersonInterface> members;
+
+    public FamilyTree() {
+        this.members = new ArrayList<>();
+    }
+
+    public void addPerson(PersonInterface person) {
+        members.add(person);
+    }
+
+    public List<PersonInterface> getChildren(PersonInterface person) {
+        List<PersonInterface> children = new ArrayList<>();
+        for (PersonInterface member : members) {
+            if (person.equals(member.getFather()) || person.equals(member.getMother())) {
+                children.add(member);
+            }
+        }
+        return children;
+    }
+
+    public List<PersonInterface> getParents(PersonInterface person) {
+        List<PersonInterface> parents = new ArrayList<>();
+        if (person.getFather() != null) {
+            parents.add(person.getFather());
+        }
+        if (person.getMother() != null) {
+            parents.add(person.getMother());
+        }
+        return parents;
+    }
+}
+
+// Интерфейс для представления (View)
+interface ViewInterface {
+    void displayPersonAdded(PersonInterface person);
+    void displayPerson(PersonInterface person);
+}
+
+// Класс ConsoleView для отображения данных в консоли, реализующий интерфейс ViewInterface
+class ConsoleView implements ViewInterface {
+    public void displayPersonAdded(PersonInterface person) {
+        System.out.println("Person added: " + person.getName());
+    }
+
+    public void displayPerson(PersonInterface person) {
+        System.out.println("Person: " + person.getName() + ", Age: " + person.getAge());
+    }
+}
+
+// Класс презентера (Presenter) для взаимодействия между моделью и представлением
+class FamilyTreePresenter {
+    private FamilyTreeInterface familyTree;
+    private ViewInterface view;
+
+    public FamilyTreePresenter(FamilyTreeInterface familyTree, ViewInterface view) {
+        this.familyTree = familyTree;
+        this.view = view;
+    }
+
+    public void addPerson(String name, int age) {
+        PersonInterface person = new Person(name, age);
+        familyTree.addPerson(person);
+        view.displayPersonAdded(person);
+    }
+
+    public void displayFamilyTree() {
+        for (PersonInterface person : familyTree.getChildren(null)) {
+            view.displayPerson(person);
+        }
+    }
+}
+
+// Основной класс для запуска приложения
+public class Main {
+    public static void main(String[] args) {
+        FamilyTreeInterface familyTree = new FamilyTree();
+        ViewInterface view = new ConsoleView();
+        FamilyTreePresenter presenter = new FamilyTreePresenter(familyTree, view);
+
+        presenter.addPerson("Ivan", 30);
+        presenter.addPerson("Maria", 25);
+        
+        presenter.displayFamilyTree();
+    }
+}
