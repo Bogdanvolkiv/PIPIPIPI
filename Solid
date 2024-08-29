@@ -1,0 +1,66 @@
+Задача номер 6 
+
+interface TreeNode {
+    String getName();
+    List<TreeNode> getChildren();
+}
+
+class Person implements TreeNode {
+    private String name;
+    private List<TreeNode> children;
+
+    public Person(String name) {
+        this.name = name;
+        this.children = new ArrayList<>();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public List<TreeNode> getChildren() {
+        return children;
+    }
+
+    public void addChild(TreeNode child) {
+        children.add(child);
+    }
+}
+
+class FamilyTree {
+    private TreeNode root;
+
+    public FamilyTree(TreeNode root) {
+        this.root = root;
+    }
+
+    public TreeNode getRoot() {
+        return root;
+    }
+
+    public void traverse() {
+        traverse(root, 0);
+    }
+
+    private void traverse(TreeNode node, int level) {
+        if (node != null) {
+            System.out.println(" ".repeat(level * 2) + node.getName());
+            for (TreeNode child : node.getChildren()) {
+                traverse(child, level + 1);
+            }
+        }
+    }
+}
+
+class FamilyTreeFileManager {
+    public void saveToFile(FamilyTree tree, String filename) {
+        // Логика сохранения дерева в файл
+    }
+
+    public FamilyTree loadFromFile(String filename) {
+        // Логика загрузки дерева из файла
+        return null;
+    }
+}
